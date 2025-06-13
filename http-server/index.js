@@ -1,33 +1,54 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('registrationForm');
-    const entriesTableBody = document.querySelector('#entriesTable tbody');
+const http = require("http");
+const fs = require("fs");
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
+const argv = require("minimist")(process.argv.slice(2));
 
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-        const dob = document.getElementById('dob').value;
-        const terms = document.getElementById('terms').checked;
+let homeContent = "";
+let projectContent = "";
+let registrationContent = "";
 
-        if (!terms) {
-            alert('You must accept the terms and conditions.');
-            return;
-        }
-
-        const newRow = document.createElement('tr');
-
-        newRow.innerHTML = `
-            <td>${name}</td>
-            <td>${email}</td>
-            <td>${password}</td>
-            <td>${dob}</td>
-            <td>${terms ? 'Yes' : 'No'}</td>
-        `;
-
-        entriesTableBody.appendChild(newRow);
-
-        form.reset();
-    });
+fs.readFile("home.html", (err, home) => {
+  if (err) {
+    throw err;
+  }
+  homeContent = home;
 });
+
+fs.readFile("project.html", (err, project) => {
+  if (err) {
+    throw err;
+  }
+  projectContent = project;
+});
+
+fs.readFile("registration.html", (err, registration) => {
+  if (err) {
+    throw err;
+  }
+  registrationContent = registration;
+});
+
+const port = argv.port || 3000;
+
+http
+  .createServer((request, response) => {
+    let url = request.url;
+    response.writeHeader(200, { "Content-Type": "text/html" });
+    switch (url) {
+      case "/project":
+        response.write(projectContent);
+        response.end();
+        break;
+      case "/registration":
+        response.write(registrationContent);
+        response.end();
+        break;
+      default:
+        response.write(homeContent);
+        response.end();
+        break;
+    }
+  })
+  .listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });

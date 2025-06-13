@@ -1,55 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Registration & Entries</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <style>
+        
+            * {
+                margin: 0;
+                padding: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            #div1 {
+                margin-top: 6px;
+                margin-bottom: 30px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                width: 90%;
+                padding: 20px;
+                background-color: antiquewhite;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            #div2 {
+                background-color: bisque;
+                margin-bottom: 10px;
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                width: 90%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            h1 {
+                font-size: 38px;
+                text-align: center;
+                font-weight: bold;
+                color: black;
+                margin-bottom: 35px;
+            }
+
+            form {
+                max-width: 200px;
+                margin: 0 auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            label {
+                display: inline-block;
+                margin-bottom: 6px;
+                font-weight: bold;
+            }
+
+            table, th, td {
+                border: 1px solid #ccc;
+            }
+
+            th, td {
+                background: beige;
+                padding: 10px;
+                text-align: left;
+            }
+
+            th {
+                background: none;
+                text-align: center;
+            }
+
+
+            input[type="text"], 
+            input[type="email"], 
+            input[type="password"], 
+            input[type="date"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                margin-bottom: 23px;
+                border-radius: 6px;
+            }
+
+            input[type="checkbox"] {
+                margin-right: 5px;
+            }
+
+            #submit {
+                padding: 8px 18px;
+                background-color: dimgray;
+                color: aquamarine;
+                font-size: 18px;
+                border: none;
+                border-radius: 3px;
+                margin-top: 20px;
+                cursor: pointer;
+            }
+
+            #submit:hover {
+                background-color: antiquewhite;
+            }
+
+            #datatable{
+                margin-top: 30px;
+            }
+
+
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Registration Form</h2>
-        <div class="form-container">
-            <form id="registrationForm">
-                <label for="name">Name:</label>
-                <input type="text" id="name" required />
-
-                <label for="email">Email:</label>
-                <input type="email" id="email" required />
-
-                <label for="password">Password:</label>
-                <input type="password" id="password" required />
-
-                <label for="dob">Date of Birth:</label>
-                <input type="date" id="dob" required />
-
-                <label>
-                    <input type="checkbox" id="terms" required /> Accept Terms & Conditions
-                </label>
-
-                <button type="submit" id="submitBtn">Submit</button>
-            </form>
-        </div>
+    <div id="div1">
+        <h1>Registration Form</h1>
+        
+        <form onsubmit="return Submit()">
+            <p>
+                <label for="name">Name</label>
+                <input type="text" id="name" placeholder="Enter full Name" name="Name" required>
+            </p>
+            <p>
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter email" name="Email" required>
+            </p>
+            <p>    
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password" name="Password" required>
+            </p>
+            <p>
+                <label for="dob">Date of Birth</label>
+                <input type="date" name="DOB" id="dob">
+            </p>
+            <p id="iagree">
+                <input type="checkbox" id="agree-to-terms" required>
+                <label for="agree-to-terms">Accept Terms & Conditions</label>
+            </p>
+            <input type="submit" id="submit" value="Submit"/>
+        </form>
     </div>
 
-    <div class="container">
-        <h2>Entries</h2>
-        <div class="entries-container">
-            <table id="entriesTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Password</th>
-                        <th>DOB</th>
-                        <th>Accepted Terms?</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+
+
+    <div id="div2">
+        <h1>Entries</h1>
+        <table id="datatable">
+            <thead>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Dob</th>
+                <th>Accepted terms?</th>
+            </thead>
+
+            <tbody>
+                <!-- rows to be added automatically -->
+            </tbody>
+        </table>
     </div>
 
-    <script src="index.js"></script>
+    <a href="./project">&lt;- Projects</a>
+    <a href="/">&lt;- Back to home</a>
+    
+    <!-- <script src="index.js"></script> -->
+    <script>
+        if (localStorage.getItem("Names") == null) {
+    localStorage.setItem("Names", "[]");
+}
+if (localStorage.getItem("Emails") == null) {
+    localStorage.setItem("Emails", "[]");
+}
+if (localStorage.getItem("Pass") == null) {
+    localStorage.setItem("Pass", "[]");
+}
+if (localStorage.getItem("Date Of Birth") == null) {
+    localStorage.setItem("Date Of Birth", "[]");
+}
+
+const currentDate = new Date();
+const minDate = new Date();
+const maxDate = new Date();
+
+minDate.setFullYear(currentDate.getFullYear() - 55);
+// minDate.setDate(minDate.getDate() + 1);
+maxDate.setFullYear(currentDate.getFullYear() - 18);
+// maxDate.setDate(maxDate.getDate() + 1);  
+
+document.getElementById("dob").setAttribute("min", minDate.toISOString().split('T')[0]);
+document.getElementById("dob").setAttribute("max", maxDate.toISOString().split('T')[0]);
+
+function displayData() {
+    const names = JSON.parse(localStorage.getItem("Names"));
+    const emails = JSON.parse(localStorage.getItem("Emails"));
+    const passwords = JSON.parse(localStorage.getItem("Pass"));
+    const dobs = JSON.parse(localStorage.getItem("Date Of Birth"));
+
+    const tableBody = document.querySelector("#datatable tbody");
+    
+    tableBody.innerHTML = "";
+
+    for (let i = 0; i < names.length; i++) {
+        let row = document.createElement("tr");
+        let nameCell = document.createElement("td");
+        let emailCell = document.createElement("td");
+        let passCell = document.createElement("td");
+        let dobCell = document.createElement("td");
+        let agreedCell = document.createElement("td");
+
+        nameCell.textContent = names[i];
+        emailCell.textContent = emails[i];
+        passCell.textContent = passwords[i];
+        dobCell.textContent = dobs[i];
+        agreedCell.textContent = "true";
+
+        row.appendChild(nameCell);
+        row.appendChild(emailCell);
+        row.appendChild(passCell);
+        row.appendChild(dobCell);
+        row.appendChild(agreedCell);
+
+        tableBody.appendChild(row);
+    }
+
+}
+
+displayData();
+
+function Submit() {
+
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const dob = document.getElementById("dob").value;
+
+    var old_n = JSON.parse(localStorage.getItem("Names"));
+    old_n.push(name);
+    localStorage.setItem("Names", JSON.stringify(old_n));
+    
+    var old_e = JSON.parse(localStorage.getItem("Emails"));
+    old_e.push(email);
+    localStorage.setItem("Emails", JSON.stringify(old_e));
+    
+    var old_p = JSON.parse(localStorage.getItem("Pass"));
+    old_p.push(password);
+    localStorage.setItem("Pass", JSON.stringify(old_p));
+    
+    var old_d = JSON.parse(localStorage.getItem("Date Of Birth"));
+    old_d.push(dob);
+    localStorage.setItem("Date Of Birth", JSON.stringify(old_d));
+
+
+    // Clear input fields
+    document.getElementById("name").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("dob").value = "";
+
+    displayData();
+    return false;
+}
+   </script>
 </body>
 </html>

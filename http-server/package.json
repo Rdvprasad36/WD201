@@ -1,12 +1,14 @@
 {
   "name": "http-server",
   "version": "1.0.0",
-  "description": "Simple HTTP server for serving HTML pages",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js --port 3000"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
+  "author": "Sejal Tembe <sejaltembe2004@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
     "minimist": "^1.2.8"
-  }
+  },
+  "description": ""
 }
