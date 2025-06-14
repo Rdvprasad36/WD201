@@ -3,15 +3,15 @@ export default [
     files: ["**/*.js"],
     languageOptions: {
       parserOptions: {
-        ecmaVersion: "latest"
+        ecmaVersion: "latest",
       },
       globals: {
         require: "readonly",
         exports: "readonly",
         module: "readonly",
-        jest: "readonly"
-      }
+        jest: "readonly",
+      },
     },
-    rules: {}
-  }
+    rules: {},
+  },
 ];
