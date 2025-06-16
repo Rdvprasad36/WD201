@@ -12,7 +12,8 @@ form {
   margin-bottom: 20px;
 }
 
-input[type="text"], input[type="date"] {
+input[type="text"],
+input[type="date"] {
   padding: 8px;
   margin-right: 10px;
   border: 1px solid #ccc;

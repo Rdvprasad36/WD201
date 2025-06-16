@@ -1,6 +1,32 @@
 const express = require("express");
 const app = express();
-const { Todo } = require("./models");
+const { Sequelize } = require("sequelize");
+const env = process.env.NODE_ENV || "development";
+const config = require("./config/config.json")[env];
+
+// Override config with environment variables in production
+if (env === "production") {
+  config.username = process.env.DB_USERNAME;
+  config.password = process.env.DB_PASSWORD;
+  config.database = process.env.DB_NAME;
+  config.host = process.env.DB_HOST;
+  config.port = process.env.DB_PORT;
+}
+
+const sequelize = new Sequelize(
+  config.database,
+  config.username,
+  config.password,
+  {
+    host: config.host,
+    dialect: config.dialect,
+    port: config.port,
+    logging: false,
+  },
+);
+
+const { Todo } = require("./models")(sequelize);
+
 const path = require("path");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
