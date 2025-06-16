@@ -1,32 +1,6 @@
 const express = require("express");
 const app = express();
-const { Sequelize } = require("sequelize");
-const env = process.env.NODE_ENV || "development";
-const config = require("./config/config.json")[env];
-
-if (env === "production") {
-  console.log("DB_PORT environment variable:", process.env.DB_PORT);
-  config.username = process.env.DB_USERNAME;
-  config.password = process.env.DB_PASSWORD;
-  config.database = process.env.DB_NAME;
-  config.host = process.env.DB_HOST;
-  config.port = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432;
-}
-
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  {
-    host: config.host,
-    dialect: config.dialect,
-    port: config.port,
-    logging: false,
-  },
-);
-
-const { Todo } = require("./models")(sequelize);
-
+const { Todo, sequelize } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
@@ -36,22 +10,21 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname + "/public")));
 
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Database connection has been established successfully.");
+  })
+  .catch((err) => {
+    console.error("Unable to connect to the database:", err);
+  });
+
 app.get("/", async (request, response) => {
   const allTodos = await Todo.getTodos();
   if (request.accepts("html")) {
     response.render("index", { allTodos });
   } else {
     response.json(allTodos);
-  }
-});
-app.get("/todos", async (_request, response) => {
-  console.log("We have to fetch all the todos");
-  try {
-    const alltodos = await Todo.findAll();
-    return response.send(alltodos);
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
   }
 });
 app.get("/todos", async (_request, response) => {
