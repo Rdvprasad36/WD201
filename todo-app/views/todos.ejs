@@ -1,16 +1,70 @@
-<table border="1" style="border: 2px solid green;">
-  <tr style="border: 1px solid green;">
-      <td>ID</td>
-      <td>Title</td>
-      <td>DueDate</td>
-      <td>Completed</td>
-  </tr>
-  <% for( var i = 0; i < allTodos.length; i++) {%>
-      <tr style="border: 2px solid green;">
-          <td><%= allTodos[i].id %></td>
-          <td><%= allTodos[i].title %></td>
-          <td><%= allTodos[i].dueDate %></td>
-          <td><%= allTodos[i].completed %></td>
-      </tr>
-  <% } %>
-</table>
+<div class="max-w-md mx-auto mt-6">
+  <form id="add-todo-form" class="flex space-x-2 mb-4" method="POST" action="/todos">
+    <input type="text" name="title" placeholder="What's next?" class="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+    <input type="date" name="dueDate" class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">Add</button>
+  </form>
+
+  <div>
+    <h5 class="font-semibold mb-2">Overdue (<span id="count-overdue"><%= overdueTodos.length %></span>)</h5>
+    <ul class="list-none space-y-2">
+      <% if (overdueTodos && overdueTodos.length > 0) { %>
+        <% overdueTodos.forEach(function(todo, index) { %>
+          <li class="flex items-center space-x-2 p-2 rounded hover:bg-purple-50" >
+            <input id="todo-checkbox-<%= index %>" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500" <%= todo.completed ? "checked" : "" %> />
+            <label for="todo-checkbox-<%= index %>" class="ml-2 text-sm text-gray-600 cursor-pointer"><%= todo.title %></label>
+            <a href="#" class="ml-2" onclick="deleteTodo(<%= todo.id %>)" title="Delete">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 text-gray-400 hover:text-red-600">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </a>
+          </li>
+        <% }); %>
+      <% } else { %>
+        <li class="text-gray-500">No overdue todos</li>
+      <% } %>
+    </ul>
+  </div>
+
+  <div>
+    <h5 class="font-semibold mb-2">Due Today (<span id="count-due-today"><%= dueTodayTodos.length %></span>)</h5>
+    <ul class="list-none space-y-2">
+      <% if (dueTodayTodos && dueTodayTodos.length > 0) { %>
+        <% dueTodayTodos.forEach(function(todo, index) { %>
+          <li class="flex items-center space-x-2 p-2 rounded hover:bg-purple-50" >
+            <input id="todo-checkbox-today-<%= index %>" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500" <%= todo.completed ? "checked" : "" %> />
+            <label for="todo-checkbox-today-<%= index %>" class="ml-2 text-sm text-gray-600 cursor-pointer"><%= todo.title %></label>
+            <a href="#" class="ml-2" onclick="deleteTodo(<%= todo.id %>)" title="Delete">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 text-gray-400 hover:text-red-600">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </a>
+          </li>
+        <% }); %>
+      <% } else { %>
+        <li class="text-gray-500">No todos due today</li>
+      <% } %>
+    </ul>
+  </div>
+
+  <div>
+    <h5 class="font-semibold mb-2">Due Later (<span id="count-due-later"><%= dueLaterTodos.length %></span>)</h5>
+    <ul class="list-none space-y-2">
+      <% if (dueLaterTodos && dueLaterTodos.length > 0) { %>
+        <% dueLaterTodos.forEach(function(todo, index) { %>
+          <li class="flex items-center space-x-2 p-2 rounded hover:bg-purple-50" >
+            <input id="todo-checkbox-later-<%= index %>" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500" <%= todo.completed ? "checked" : "" %> />
+            <label for="todo-checkbox-later-<%= index %>" class="ml-2 text-sm text-gray-600 cursor-pointer"><%= todo.title %></label>
+            <a href="#" class="ml-2" onclick="deleteTodo(<%= todo.id %>)" title="Delete">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 text-gray-400 hover:text-red-600">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </a>
+          </li>
+        <% }); %>
+      <% } else { %>
+        <li class="text-gray-500">No todos due later</li>
+      <% } %>
+    </ul>
+  </div>
+</div>

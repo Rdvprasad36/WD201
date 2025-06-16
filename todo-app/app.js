@@ -6,12 +6,22 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", async (request, response) => {
+  // Fetch todos and categorize them
   const allTodos = await Todo.getTodos();
+
+  // Categorize todos into overdue, dueToday, dueLater
+  const today = new Date().toISOString().slice(0, 10);
+
+  const overdueTodos = allTodos.filter(todo => todo.dueDate < today && !todo.completed);
+  const dueTodayTodos = allTodos.filter(todo => todo.dueDate === today && !todo.completed);
+  const dueLaterTodos = allTodos.filter(todo => todo.dueDate > today && !todo.completed);
+
   if (request.accepts("html")) {
-    response.render("index", { allTodos });
+    response.render("index", { overdueTodos, dueTodayTodos, dueLaterTodos });
   } else {
     response.json(allTodos);
   }
