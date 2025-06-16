@@ -6,6 +6,7 @@ const config = require("./config/config.json")[env];
 
 // Override config with environment variables in production
 if (env === "production") {
+  console.log("DB_PORT environment variable:", process.env.DB_PORT);
   config.username = process.env.DB_USERNAME;
   config.password = process.env.DB_PASSWORD;
   config.database = process.env.DB_NAME;
