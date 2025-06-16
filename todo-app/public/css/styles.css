@@ -1,141 +1,80 @@
-/* General body styling */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f9fafb;
-  margin: 0;
-  padding: 0;
-  color: #333;
+  font-family: Arial, sans-serif;
+  margin: 20px;
 }
 
-/* Container for todo app */
-.max-w-md {
-  max-width: 600px;
-  margin: 2rem auto;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+h1 {
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-/* Form styling */
-form#add-todo-form {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+form {
+  margin-bottom: 20px;
 }
 
-form#add-todo-form input[type="text"],
-form#add-todo-form input[type="date"] {
-  flex-grow: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
+input[type="text"], input[type="date"] {
+  padding: 8px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-form#add-todo-form input[type="text"]:focus,
-form#add-todo-form input[type="date"]:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.3);
-}
-
-form#add-todo-form button {
-  background-color: #10b981;
+button {
+  background-color: #28a745;
   color: white;
   border: none;
-  padding: 0 1rem;
-  border-radius: 6px;
+  padding: 8px 15px;
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
 }
 
-form#add-todo-form button:hover {
-  background-color: #059669;
+button:hover {
+  background-color: #218838;
 }
 
-/* Todo list sections */
+section {
+  margin-bottom: 20px;
+}
+
 h5 {
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: #111827;
+  font-weight: 600;
+  margin-bottom: 5px;
 }
 
-ul.list-none {
-  list-style: none;
+ul {
+  list-style-type: none;
   padding-left: 0;
 }
 
-li.flex {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  transition: background-color 0.3s ease;
+li.todo-item {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 5px;
   position: relative;
+  border-radius: 4px;
 }
 
-li.flex:hover {
-  background-color: #ede9fe;
+li.todo-item:hover {
+  background-color: #f8f9fa;
 }
 
-/* Checkbox styling */
-input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
-  cursor: pointer;
-}
-
-/* Label styling */
-label {
-  flex-grow: 1;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #374151;
-}
-
-/* Delete button styling */
-button.delete-bin-icon {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.delete-btn {
   position: absolute;
-  right: 0.5rem;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6b7280;
-  font-size: 1.2rem;
-  line-height: 1;
-  width: 1.2rem;
-  height: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 16px;
 }
 
-li.flex:hover button.delete-bin-icon {
-  opacity: 1;
-  color: #ef4444;
+li.todo-item:hover .delete-btn {
+  display: inline;
 }
 
-button.delete-bin-icon::before {
-  content: "\\1F5D1"; /* Unicode for wastebasket/trash bin */
-  font-weight: bold;
-}
-
-button.delete-bin-icon:hover::before {
-  color: #b91c1c;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .max-w-md {
-    margin: 1rem;
-    padding: 1rem;
-  }
+.complete-checkbox {
+  margin-right: 10px;
 }

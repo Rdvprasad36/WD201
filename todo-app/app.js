@@ -4,30 +4,30 @@ const { Todo } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
+//New syntax
 app.set("views", path.join(__dirname, "views"));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname + "/public")));
 
 app.get("/", async (request, response) => {
-  // Fetch todos and categorize them
   const allTodos = await Todo.getTodos();
-
-  // Categorize todos into overdue, dueToday, dueLater
-  const today = new Date().toISOString().slice(0, 10);
-
-  const overdueTodos = allTodos.filter(todo => todo.dueDate < today && !todo.completed);
-  const dueTodayTodos = allTodos.filter(todo => todo.dueDate === today && !todo.completed);
-  const dueLaterTodos = allTodos.filter(todo => todo.dueDate > today && !todo.completed);
-
   if (request.accepts("html")) {
-    response.render("index", { overdueTodos, dueTodayTodos, dueLaterTodos });
+    response.render("index", { allTodos });
   } else {
     response.json(allTodos);
   }
 });
-
+app.get("/todos", async (_request, response) => {
+  console.log("We have to fetch all the todos");
+  try {
+    const alltodos = await Todo.findAll();
+    return response.send(alltodos);
+  } catch (error) {
+    console.log(error);
+    return response.status(422).json(error);
+  }
+});
 app.get("/todos", async (_request, response) => {
   console.log("We have to fetch all the todos");
   try {
@@ -42,6 +42,7 @@ app.get("/todos", async (_request, response) => {
 app.post("/todos", async (request, response) => {
   console.log("Creating a todo", request.body);
 
+  //Todo implement
   try {
     const todo = await Todo.addTodo({
       title: request.body.title,
@@ -74,24 +75,6 @@ app.delete("/todos/:id", async (request, response) => {
   } catch (error) {
     console.log(error);
     return response.status(422).json();
-  }
-});
-
-app.get("/admin-dashboard", async (request, response) => {
-  try {
-    const allTodos = await Todo.getTodos();
-    const totalTodos = allTodos.length;
-    const completedTodos = allTodos.filter(todo => todo.completed).length;
-    const pendingTodos = totalTodos - completedTodos;
-
-    response.render("admin-dashboard", {
-      totalTodos,
-      completedTodos,
-      pendingTodos,
-    });
-  } catch (error) {
-    console.error("Error loading admin dashboard:", error);
-    response.status(500).send("Internal Server Error");
   }
 });
 

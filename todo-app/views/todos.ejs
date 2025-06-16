@@ -1,49 +1,83 @@
-<div class="max-w-md mx-auto mt-6">
-  <form id="add-todo-form" class="flex space-x-2 mb-4" method="POST" action="/todos">
-    <input type="text" name="title" placeholder="What's next?" 
-           class="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
-           required />
-    <input type="date" name="dueDate" 
-           class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
-           required />
-    <button type="submit" 
-            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">Add</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Todo-list</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script defer src="/js/todo.js"></script>
+  <style>
+    .todo-item {
+      position: relative;
+      padding-right: 30px;
+    }
+    .delete-btn {
+      position: absolute;
+      right: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #888;
+    }
+    .todo-item:hover .delete-btn {
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Todo-list</h1>
+  <form id="add-todo-form">
+    <input type="text" id="new-todo-title" placeholder="What's next?" required />
+    <input type="date" id="new-todo-duedate" required />
+    <button type="submit">Add</button>
   </form>
 
-  <% const sections = [
-    { label: 'Overdue', id: 'count-overdue', todos: overdueTodos, prefix: '' },
-    { label: 'Due Today', id: 'count-due-today', todos: dueTodayTodos, prefix: 'today-' },
-    { label: 'Due Later', id: 'count-due-later', todos: dueLaterTodos, prefix: 'later-' }
-  ]; %>
+  <% 
+    const today = new Date().toISOString().slice(0,10);
+    const overdue = allTodos.filter(todo => !todo.completed && todo.dueDate < today);
+    const dueToday = allTodos.filter(todo => !todo.completed && todo.dueDate === today);
+    const dueLater = allTodos.filter(todo => !todo.completed && todo.dueDate > today);
+  %>
 
-  <% sections.forEach(section => { %>
-    <div>
-      <h5 class="font-semibold mb-2"><%= section.label %> (<span id="<%= section.id %>"><%= section.todos.length %></span>)</h5>
-      <ul class="list-none space-y-2">
-        <% if (section.todos && section.todos.length > 0) { %>
-          <% section.todos.forEach(function(todo, index) { %>
-            <li data-todo-id="<%= todo.id %>" class="flex items-center space-x-2 p-2 rounded hover:bg-purple-50 group relative">
-              <input id="todo-checkbox-<%= section.prefix + index %>" 
-                     type="checkbox" 
-                     class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500" 
-                     <%= todo.completed ? "checked" : "" %> 
-                     onchange="toggleCompleted(<%= todo.id %>, this)" />
-              
-              <label for="todo-checkbox-<%= section.prefix + index %>" 
-                     class="ml-2 text-sm text-gray-600 cursor-pointer"><%= todo.title %></label>
-              
-              <button type="button" 
-                      onclick="deleteTodo(<%= todo.id %>)" 
-                      title="Delete" 
-                      class="ml-2 delete-bin-icon opacity-0 group-hover:opacity-100 transition absolute right-2 top-2 cursor-pointer text-gray-400 hover:text-red-600">
-              </button>
-            </li>
-          <% }); %>
-        <% } else { %>
-          <li class="text-gray-500">No <%= section.label.toLowerCase() %> todos</li>
-        <% } %>
-      </ul>
-    </div>
-  <% }); %>
-</div>
- 
+  <section>
+    <h5>Overdue <span id="count-overdue">(<%= overdue.length %>)</span></h5>
+    <ul>
+      <% overdue.forEach(todo => { %>
+        <li class="todo-item" data-id="<%= todo.id %>">
+          <input type="checkbox" class="complete-checkbox" <%= todo.completed ? "checked" : "" %> />
+          <span><%= todo.title %></span>
+          <button class="delete-btn" title="Delete">&#128465;</button>
+        </li>
+      <% }) %>
+    </ul>
+  </section>
+
+  <section>
+    <h5>Due Today <span id="count-due-today">(<%= dueToday.length %>)</span></h5>
+    <ul>
+      <% dueToday.forEach(todo => { %>
+        <li class="todo-item" data-id="<%= todo.id %>">
+          <input type="checkbox" class="complete-checkbox" <%= todo.completed ? "checked" : "" %> />
+          <span><%= todo.title %></span>
+          <button class="delete-btn" title="Delete">&#128465;</button>
+        </li>
+      <% }) %>
+    </ul>
+  </section>
+
+  <section>
+    <h5>Due Later <span id="count-due-later">(<%= dueLater.length %>)</span></h5>
+    <ul>
+      <% dueLater.forEach(todo => { %>
+        <li class="todo-item" data-id="<%= todo.id %>">
+          <input type="checkbox" class="complete-checkbox" <%= todo.completed ? "checked" : "" %> />
+          <span><%= todo.title %></span>
+          <button class="delete-btn" title="Delete">&#128465;</button>
+        </li>
+      <% }) %>
+    </ul>
+  </section>
+</body>
+</html>

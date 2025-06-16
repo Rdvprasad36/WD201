@@ -2,11 +2,8 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-
   class Todo extends Model {
-        static associate() {
-     
-    }
+    static associate() {}
 
     static addTodo({ title, dueDate }) {
       return this.create({ title: title, dueDate: dueDate, completed: false });
