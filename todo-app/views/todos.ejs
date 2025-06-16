@@ -18,8 +18,7 @@
 
   <% sections.forEach(section => { %>
     <div>
-      <h5 class="font-semibold mb-2"><%= section.label %></h5>
-      <span id="<%= section.id %>"><%= section.todos.length %></span>
+      <h5 class="font-semibold mb-2"><%= section.label %> (<span id="<%= section.id %>"><%= section.todos.length %></span>)</h5>
       <ul class="list-none space-y-2">
         <% if (section.todos && section.todos.length > 0) { %>
           <% section.todos.forEach(function(todo, index) { %>
