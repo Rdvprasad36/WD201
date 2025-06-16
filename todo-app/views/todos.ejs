@@ -42,7 +42,6 @@
   %>
 
   <section>
-    <!-- Overdue Section -->
     <h5>Overdue <span id="count-overdue">(<%= overdue.length %>)</span></h5>
     <ul>
       <% overdue.forEach(todo => { %>
@@ -56,7 +55,6 @@
   </section>
 
   <section>
-    <!-- Due Today Section -->
     <h5>Due Today <span id="count-due-today">(<%= dueToday.length %>)</span></h5>
     <ul>
       <% dueToday.forEach(todo => { %>
@@ -70,7 +68,6 @@
   </section>
 
   <section>
-    <!-- Due Later Section -->
     <h5>Due Later <span id="count-due-later">(<%= dueLater.length %>)</span></h5>
     <ul>
       <% dueLater.forEach(todo => { %>
