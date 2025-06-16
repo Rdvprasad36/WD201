@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!confirm("Are you sure you want to delete this todo?")) return;
     try {
       const response = await fetch(`/todos/${id}`, { method: "DELETE" });
-      if (response.ok) {
+      if (response.status === 200) {
         // Remove the todo item from the DOM
         const todoElement = document.querySelector(`[data-todo-id='${id}']`);
         if (todoElement) {
