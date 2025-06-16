@@ -11,7 +11,7 @@ if (env === "production") {
   config.password = process.env.DB_PASSWORD;
   config.database = process.env.DB_NAME;
   config.host = process.env.DB_HOST;
-  config.port = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432;
+  config.port = 5432; // Hardcoded port for testing
 }
 
 const sequelize = new Sequelize(
