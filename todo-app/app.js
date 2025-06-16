@@ -4,6 +4,7 @@ const { Todo } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -73,6 +74,24 @@ app.delete("/todos/:id", async (request, response) => {
   } catch (error) {
     console.log(error);
     return response.status(422).json();
+  }
+});
+
+app.get("/admin-dashboard", async (request, response) => {
+  try {
+    const allTodos = await Todo.getTodos();
+    const totalTodos = allTodos.length;
+    const completedTodos = allTodos.filter(todo => todo.completed).length;
+    const pendingTodos = totalTodos - completedTodos;
+
+    response.render("admin-dashboard", {
+      totalTodos,
+      completedTodos,
+      pendingTodos,
+    });
+  } catch (error) {
+    console.error("Error loading admin dashboard:", error);
+    response.status(500).send("Internal Server Error");
   }
 });
 
