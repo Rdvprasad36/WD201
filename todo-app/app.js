@@ -1,6 +1,9 @@
 const express = require("express");
+const session = require("express-session");
+const flash = require("connect-flash");
+const bcrypt = require("bcrypt");
 const app = express();
-const { Todo, sequelize } = require("./models");
+const { Todo, User, sequelize } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 const csrf = require("csurf");
@@ -9,7 +12,22 @@ const cookieParser = require("cookie-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(session({
+  secret: "your_secret_key",
+  resave: false,
+  saveUninitialized: false,
+}));
+
+app.use(flash());
+
 app.use(csrf({ cookie: true }));
+
+app.use((req, res, next) => {
+  res.locals.messages = req.flash();
+  res.locals.currentUser = req.session.user || null;
+  next();
+});
 
 app.set("view engine", "ejs");
 //New syntax
@@ -26,17 +44,89 @@ sequelize
   });
 
 app.get("/", async (request, response) => {
-  const allTodos = await Todo.getTodos();
+  if (!request.session.user) {
+    return response.redirect("/login");
+  }
+  const allTodos = await Todo.getTodos(request.session.user.id);
   if (request.accepts("html")) {
     response.render("index", { allTodos, csrfToken: request.csrfToken() });
   } else {
     response.json(allTodos);
   }
 });
-app.get("/todos", async (_request, response) => {
+
+// Signup routes
+app.get("/signup", (req, res) => {
+  res.render("signup", { csrfToken: req.csrfToken() });
+});
+
+app.post("/signup", async (req, res) => {
+  const { first_name, last_name, email, password } = req.body;
+  if (!first_name || !email || !password) {
+    req.flash("error", "First name, email, and password are required.");
+    return res.redirect("/signup");
+  }
+  try {
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      req.flash("error", "Email already registered.");
+      return res.redirect("/signup");
+    }
+    const bcrypt = require("bcrypt");
+    const password_hash = await bcrypt.hash(password, 10);
+    const user = await User.create({ first_name, last_name, email, password_hash });
+    req.session.user = { id: user.id, first_name: user.first_name, email: user.email };
+    res.redirect("/");
+  } catch (error) {
+    req.flash("error", "Error creating user.");
+    res.redirect("/signup");
+  }
+});
+
+// Login routes
+app.get("/login", (req, res) => {
+  res.render("login", { csrfToken: req.csrfToken() });
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    req.flash("error", "Email and password are required.");
+    return res.redirect("/login");
+  }
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      req.flash("error", "Invalid email or password.");
+      return res.redirect("/login");
+    }
+    const bcrypt = require("bcrypt");
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match) {
+      req.flash("error", "Invalid email or password.");
+      return res.redirect("/login");
+    }
+    req.session.user = { id: user.id, first_name: user.first_name, email: user.email };
+    res.redirect("/");
+  } catch (error) {
+    req.flash("error", "Error logging in.");
+    res.redirect("/login");
+  }
+});
+
+// Logout route
+app.post("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/login");
+  });
+});
+app.get("/todos", async (request, response) => {
+  if (!request.session.user) {
+    return response.status(401).send("Unauthorized");
+  }
   console.log("We have to fetch all the todos");
   try {
-    const alltodos = await Todo.findAll();
+    const alltodos = await Todo.findAll({ where: { userId: request.session.user.id } });
     return response.send(alltodos);
   } catch (error) {
     console.log(error);
@@ -45,16 +135,21 @@ app.get("/todos", async (_request, response) => {
 });
 
 app.post("/todos", async (request, response) => {
+  if (!request.session.user) {
+    return response.status(401).send("Unauthorized");
+  }
   console.log("Creating a todo", request.body);
 
   if (!request.body.title || !request.body.dueDate) {
-    return response.status(400).send("Title and due date are required");
+    request.flash("error", "Title and due date are required");
+    return response.redirect("/");
   }
 
   try {
     await Todo.addTodo({
       title: request.body.title,
       dueDate: request.body.dueDate,
+      userId: request.session.user.id
     });
     // Redirect to home page after creation
     return response.redirect('/');
@@ -65,8 +160,11 @@ app.post("/todos", async (request, response) => {
 });
 
 app.put("/todos/:id", async (request, response) => {
+  if (!request.session.user) {
+    return response.status(401).send("Unauthorized");
+  }
   console.log("We have to update a todo with ID: ", request.params.id);
-  const todo = await Todo.findByPk(request.params.id);
+  const todo = await Todo.findOne({ where: { id: request.params.id, userId: request.session.user.id } });
   if (todo) {
     try {
       // Convert completed to boolean properly
@@ -83,9 +181,12 @@ app.put("/todos/:id", async (request, response) => {
 });
 
 app.delete("/todos/:id", async (request, response) => {
+  if (!request.session.user) {
+    return response.status(401).send("Unauthorized");
+  }
   console.log("We have to delete a todo with ID: ", request.params.id);
   try {
-    const dltTodo = await Todo.destroy({ where: { id: request.params.id } });
+    const dltTodo = await Todo.destroy({ where: { id: request.params.id, userId: request.session.user.id } });
     response.send(dltTodo ? true : false);
   } catch (error) {
     console.log(error);
