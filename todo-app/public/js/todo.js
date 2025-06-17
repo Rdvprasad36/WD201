@@ -34,12 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           body: JSON.stringify({ completed: completed.toString(), _csrf: csrfToken })
         });
-        if (!response.ok) {
-          alert('Failed to update todo');
-          e.target.checked = !completed; // revert checkbox
-        } else {
-          location.reload();
-        }
+      if (!response.ok) {
+        alert('Failed to update todo');
+        e.target.checked = !completed; // revert checkbox
+      } else {
+        // Reload page to reflect changes
+        location.reload();
+      }
       } catch (error) {
         alert('Error updating todo');
         e.target.checked = !completed; // revert checkbox
@@ -64,12 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
             'CSRF-Token': csrfToken
           }
         });
-        if (!response.ok) {
+      if (!response.ok) {
           alert('Failed to delete todo');
         } else {
-          todoItem.remove();
-          // Do not reload here, just remove the item to avoid flicker
-          // location.reload();
+          // Reload page to reflect changes
+          location.reload();
         }
       } catch (error) {
         alert('Error deleting todo');
