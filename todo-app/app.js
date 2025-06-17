@@ -3,7 +3,13 @@ const app = express();
 const { Todo, sequelize } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
+const csrf = require("csurf");
+const cookieParser = require("cookie-parser");
+
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(csrf({ cookie: true }));
 
 app.set("view engine", "ejs");
 //New syntax
@@ -22,7 +28,7 @@ sequelize
 app.get("/", async (request, response) => {
   const allTodos = await Todo.getTodos();
   if (request.accepts("html")) {
-    response.render("index", { allTodos });
+    response.render("index", { allTodos, csrfToken: request.csrfToken() });
   } else {
     response.json(allTodos);
   }
@@ -41,28 +47,38 @@ app.get("/todos", async (_request, response) => {
 app.post("/todos", async (request, response) => {
   console.log("Creating a todo", request.body);
 
-  //Todo implement
+  if (!request.body.title || !request.body.dueDate) {
+    return response.status(400).send("Title and due date are required");
+  }
+
   try {
-    const todo = await Todo.addTodo({
+    await Todo.addTodo({
       title: request.body.title,
       dueDate: request.body.dueDate,
     });
-    return response.json(todo);
+    // Redirect to home page after creation
+    return response.redirect('/');
   } catch (error) {
     console.log(error);
     return response.status(422).json();
   }
 });
 
-app.put("/todos/:id/markAsCompleted", async (request, response) => {
+app.put("/todos/:id", async (request, response) => {
   console.log("We have to update a todo with ID: ", request.params.id);
   const todo = await Todo.findByPk(request.params.id);
-  try {
-    const updateTodoToCompleted = await todo.markAsCompleted();
-    return response.json(updateTodoToCompleted);
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json();
+  if (todo) {
+    try {
+      // Convert completed to boolean properly
+      const completed = request.body.completed === true || request.body.completed === "true";
+      await todo.setCompletionStatus(completed);
+      return response.json(todo);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json();
+    }
+  } else {
+    return response.status(404).json();
   }
 });
 

@@ -1,72 +1,78 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("add-todo-form");
-  const titleInput = document.getElementById("new-todo-title");
-  const dueDateInput = document.getElementById("new-todo-duedate");
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('add-todo-form');
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const title = titleInput.value.trim();
-    const dueDate = dueDateInput.value;
-
-    if (!title || !dueDate) return;
-
-    try {
-      const response = await fetch("/todos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, dueDate: dueDate }),
-      });
-      if (response.ok) {
-        window.location.reload();
-      } else {
-        alert("Failed to add todo");
-      }
-    } catch (error) {
-      alert("Error adding todo");
+  // Client-side validation for new todo form
+  form.addEventListener('submit', (e) => {
+    const title = document.getElementById('new-todo-title').value.trim();
+    const dueDate = document.getElementById('new-todo-duedate').value.trim();
+    if (!title) {
+      e.preventDefault();
+      alert('Title cannot be empty');
+      return;
+    }
+    if (!dueDate) {
+      e.preventDefault();
+      alert('Due date cannot be empty');
+      return;
     }
   });
 
-  document.querySelectorAll(".delete-btn").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const li = e.target.closest("li.todo-item");
-      const id = li.getAttribute("data-id");
-      if (!id) return;
-
-      if (!confirm("Are you sure you want to delete this todo?")) return;
+  // Event delegation for checkbox change and delete button click
+  document.body.addEventListener('change', async (e) => {
+    if (e.target.classList.contains('complete-checkbox')) {
+      const todoItem = e.target.closest('.Todo-Item');
+      const todoId = todoItem.getAttribute('data-id');
+      const completed = e.target.checked;
 
       try {
-        const response = await fetch(`/todos/${id}`, {
-          method: "DELETE",
+        const csrfToken = document.querySelector('input[name="_csrf"]').value;
+        const response = await fetch(`/todos/${todoId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'CSRF-Token': csrfToken
+          },
+          body: JSON.stringify({ completed })
         });
-        if (response.ok) {
-          li.remove();
+        if (!response.ok) {
+          alert('Failed to update todo');
+          e.target.checked = !completed; // revert checkbox
         } else {
-          alert("Failed to delete todo");
+          location.reload();
         }
       } catch (error) {
-        alert("Error deleting todo");
+        alert('Error updating todo');
+        e.target.checked = !completed; // revert checkbox
       }
-    });
+    }
   });
 
-  document.querySelectorAll(".complete-checkbox").forEach((checkbox) => {
-    checkbox.addEventListener("change", async (e) => {
-      const li = e.target.closest("li.todo-item");
-      const id = li.getAttribute("data-id");
-      if (!id) return;
+  document.body.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('delete-btn')) {
+      const todoItem = e.target.closest('.Todo-Item');
+      const todoId = todoItem.getAttribute('data-id');
+
+      if (!confirm('Are you sure you want to delete this todo?')) {
+        return;
+      }
 
       try {
-        const response = await fetch(`/todos/${id}/markAsCompleted`, {
-          method: "PUT",
+        const csrfToken = document.querySelector('input[name="_csrf"]').value;
+        const response = await fetch(`/todos/${todoId}`, {
+          method: 'DELETE',
+          headers: {
+            'CSRF-Token': csrfToken
+          }
         });
-        if (response.ok) {
-          window.location.reload();
+        if (!response.ok) {
+          alert('Failed to delete todo');
         } else {
-          alert("Failed to update todo");
+          todoItem.remove();
+          location.reload();
         }
       } catch (error) {
-        alert("Error updating todo");
+        alert('Error deleting todo');
       }
-    });
+    }
   });
 });

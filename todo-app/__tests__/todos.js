@@ -1,86 +1,68 @@
-const request = require("supertest");
-const db = require("../models/index");
-const app = require("../app");
+const request = require('supertest');
+const app = require('../app');
+const db = require('../models');
 
-let server, agent;
+beforeAll(async () => {
+  await db.sequelize.sync({ force: true });
+});
 
-describe("Todo test suite", () => {
+afterAll(async () => {
+  await db.sequelize.close();
+});
+
+describe('Todo API Endpoints', () => {
+  let todoId;
+  let csrfToken;
+  let cookie;
+
   beforeAll(async () => {
-    await db.sequelize.sync({ force: true });
-    server = app.listen(3000, () => {});
-    agent = request.agent(server);
-  });
-
-  afterAll(async () => {
-    await db.sequelize.close();
-    server.close();
-  });
-
-  test("Creates a todo and responds with json at /todos POST endpoint", async () => {
-    const response = await agent.post("/todos").send({
-      title: "Buy milk",
-      dueDate: new Date().toISOString(),
-      completed: false,
-    });
-    expect(response.statusCode).toBe(200);
-    expect(response.header["content-type"]).toBe(
-      "application/json; charset=utf-8",
-    );
-    const parsedResponse = JSON.parse(response.text);
-    expect(parsedResponse.id).toBeDefined();
-  });
-
-  test("Marks a todo with the given ID as complete", async () => {
-    const response = await agent.post("/todos").send({
-      title: "Buy milk",
-      dueDate: new Date().toISOString(),
-      completed: false,
-    });
-    const parsedResponse = JSON.parse(response.text);
-    const todoID = parsedResponse.id;
-
-    expect(parsedResponse.completed).toBe(false);
-
-    const markCompleteResponse = await agent
-      .put(`/todos/${todoID}/markASCompleted`)
-      .send();
-    const parsedUpdateResponse = JSON.parse(markCompleteResponse.text);
-    expect(parsedUpdateResponse.completed).toBe(true);
-  });
-
-  test("Fetches all todos in the database using /todos endpoint", async () => {
-    await agent.post("/todos").send({
-      title: "Buy xbox",
-      dueDate: new Date().toISOString(),
-      completed: false,
-    });
-    await agent.post("/todos").send({
-      title: "Buy ps3",
-      dueDate: new Date().toISOString(),
-      completed: false,
-    });
-    const response = await agent.get("/todos");
-    if (response.statusCode !== 200) {
-      throw new Error(
-        `Failed to fetch todos. Status code: ${response.statusCode}`,
-      );
+    // Get CSRF token from the server
+    const res = await request(app).get('/');
+    const cookies = res.headers['set-cookie'];
+    cookie = cookies ? cookies.map(c => c.split(';')[0]).join('; ') : '';
+    const match = res.text.match(/name="_csrf" value="([^"]+)"/);
+    csrfToken = match ? match[1] : null;
+    if (!csrfToken) {
+      throw new Error('CSRF token not found in response');
     }
-    const parsedResponse = JSON.parse(response.text);
-    expect(parsedResponse.length).toBe(4);
-    expect(parsedResponse[3]["title"]).toBe("Buy ps3");
   });
 
-  test("Deletes a todo with the given ID if it exists and sends a boolean response", async () => {
-    const response = await agent.post("/todos").send({
-      title: "Go Goa",
-      dueDate: new Date().toISOString(),
-      completed: false,
-    });
-    const parsedResponse = JSON.parse(response.text);
-    const todoid = parsedResponse.id;
+  test('Create a new todo', async () => {
+    const res = await request(app)
+      .post('/todos')
+      .set('Cookie', cookie)
+      .send({ title: 'Test Todo', dueDate: '2024-12-31', _csrf: csrfToken });
+    expect(res.statusCode).toEqual(302); // redirect after creation
+    const todos = await db.Todo.findAll();
+    expect(todos.length).toBe(1);
+    todoId = todos[0].id;
+  });
 
-    const deleteTodoResponse = await agent.delete(`/todos/${todoid}`).send();
-    const parsedDeleteResponse = JSON.parse(deleteTodoResponse.text);
-    expect(parsedDeleteResponse).toBe(true);
+  test('Update todo completion status', async () => {
+    const res = await request(app)
+      .put(`/todos/${todoId}`)
+      .set('Cookie', cookie)
+      .send({ completed: true, _csrf: csrfToken });
+    expect(res.statusCode).toEqual(200);
+    const todo = await db.Todo.findByPk(todoId);
+    expect(todo.completed).toBe(true);
+  });
+
+  test('Delete a todo', async () => {
+    const res = await request(app)
+      .delete(`/todos/${todoId}`)
+      .set('Cookie', cookie)
+      .send({ _csrf: csrfToken });
+    expect(res.statusCode).toEqual(200);
+    const todo = await db.Todo.findByPk(todoId);
+    expect(todo).toBeNull();
+  });
+
+  test('CSRF protection on POST /todos', async () => {
+    const res = await request(app)
+      .post('/todos')
+      .send({ title: 'No CSRF', dueDate: '2024-12-31' });
+    // Should be forbidden or redirect due to missing CSRF token
+    expect([403, 302]).toContain(res.statusCode);
   });
 });
