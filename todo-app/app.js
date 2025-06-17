@@ -1,7 +1,6 @@
 const express = require("express");
 const session = require("express-session");
 const flash = require("connect-flash");
-const bcrypt = require("bcrypt");
 const app = express();
 const { Todo, User, sequelize } = require("./models");
 const path = require("path");
@@ -64,13 +63,25 @@ app.post("/signup", async (req, res) => {
   const { first_name, last_name, email, password } = req.body;
   if (!first_name || !email || !password) {
     req.flash("error", "First name, email, and password are required.");
-    return res.redirect("/signup");
+    return res.render("signup", {
+      csrfToken: req.csrfToken(),
+      messages: req.flash(),
+      first_name,
+      last_name,
+      email,
+    });
   }
   try {
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       req.flash("error", "Email already registered.");
-      return res.redirect("/signup");
+      return res.render("signup", {
+        csrfToken: req.csrfToken(),
+        messages: req.flash(),
+        first_name,
+        last_name,
+        email,
+      });
     }
     const bcrypt = require("bcrypt");
     const password_hash = await bcrypt.hash(password, 10);
@@ -78,8 +89,15 @@ app.post("/signup", async (req, res) => {
     req.session.user = { id: user.id, first_name: user.first_name, email: user.email };
     res.redirect("/");
   } catch (error) {
+    console.error("Signup error:", error);
     req.flash("error", "Error creating user.");
-    res.redirect("/signup");
+    return res.render("signup", {
+      csrfToken: req.csrfToken(),
+      messages: req.flash(),
+      first_name,
+      last_name,
+      email,
+    });
   }
 });
 
