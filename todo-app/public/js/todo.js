@@ -22,28 +22,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.classList.contains('complete-checkbox')) {
       const todoItem = e.target.closest('.Todo-Item');
       const todoId = todoItem.getAttribute('data-id');
-        const completed = e.target.checked;
+      const completed = e.target.checked;
 
-        try {
-          const csrfToken = document.querySelector('input[name="_csrf"]').value;
-          const response = await fetch(`/todos/${todoId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'CSRF-Token': csrfToken
-            },
-            body: JSON.stringify({ completed: completed.toString() })
-          });
-          if (!response.ok) {
-            alert('Failed to update todo');
-            e.target.checked = !completed; // revert checkbox
-          } else {
-            location.reload();
-          }
-        } catch (error) {
-          alert('Error updating todo');
+      try {
+        const csrfToken = document.querySelector('input[name="_csrf"]').value;
+        const response = await fetch('/todos/' + todoId, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'CSRF-Token': csrfToken
+          },
+          body: JSON.stringify({ completed: completed.toString(), _csrf: csrfToken })
+        });
+        if (!response.ok) {
+          alert('Failed to update todo');
           e.target.checked = !completed; // revert checkbox
+        } else {
+          location.reload();
         }
+      } catch (error) {
+        alert('Error updating todo');
+        e.target.checked = !completed; // revert checkbox
+      }
     }
   });
 
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         const csrfToken = document.querySelector('input[name="_csrf"]').value;
-        const response = await fetch(`/todos/${todoId}`, {
+        const response = await fetch('/todos/' + todoId, {
           method: 'DELETE',
           headers: {
             'CSRF-Token': csrfToken
