@@ -11,20 +11,26 @@
 
   <h1>My Todo-list</h1>
 
-  <h5>Overdue</h5>
-  <div id="count-overdue">(<%= overdue.length %>)</div>
+  <div id="section-overdue">
+    <h5>Overdue</h5>
+    <span id="count-overdue">(<%= overdue.length %>)</span>
+  </div>
 
-  <h5>Due Today</h5>
-  <div id="count-due-today">(<%= dueToday.length %>)</div>
+  <div id="section-due-today">
+    <h5>Due Today</h5>
+    <span id="count-due-today">(<%= dueToday.length %>)</span>
+  </div>
 
-  <h5>Due Later</h5>
-  <div id="count-due-later">(<%= dueLater.length %>)</div>
+  <div id="section-due-later">
+    <h5>Due Later</h5>
+    <span id="count-due-later">(<%= dueLater.length %>)</span>
+  </div>
 
   <form id="add-todo-form" method="POST" action="/todos">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <input type="text" id="new-todo-title" name="title" placeholder="What's next?" required />
     <input type="date" id="new-todo-duedate" name="dueDate" required />
-    <button type="submit">Add Todo</button>
+    <button type="submit">Add</button>
   </form>
 
   <% 
