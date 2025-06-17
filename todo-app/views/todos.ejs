@@ -52,7 +52,7 @@
         <tr class="Todo-Item" data-id="<%= todo.id %>">
           <td>
             <label for="todo-<%= todo.id %>">
-              <input id="todo-<%= todo.id %>" type="checkbox" class="complete-checkbox" />
+              <input id="todo-<%= todo.id %>" type="checkbox" class="complete-checkbox" <%= todo.completed ? "checked" : "" %> />
               <span><%= todo.title %></span>
             </label>
           </td>

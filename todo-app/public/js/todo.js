@@ -68,7 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Failed to delete todo');
         } else {
           todoItem.remove();
-          location.reload();
+          // Do not reload here, just remove the item to avoid flicker
+          // location.reload();
         }
       } catch (error) {
         alert('Error deleting todo');
