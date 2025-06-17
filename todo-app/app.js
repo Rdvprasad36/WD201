@@ -91,6 +91,7 @@ app.post("/signup", async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.error("Signup error:", error);
+    console.error(error.stack);
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const messages = error.errors.map(e => e.message);
       req.flash('error', messages);
@@ -131,8 +132,10 @@ app.post("/login", async (req, res) => {
       return res.redirect("/login");
     }
     req.session.user = { id: user.id, first_name: user.first_name, email: user.email };
+    await req.session.save(); // Ensure session is saved before redirect
     res.redirect("/");
   } catch (error) {
+    console.error("Login error:", error);
     req.flash("error", "Error logging in.");
     res.redirect("/login");
   }
