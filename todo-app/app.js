@@ -86,11 +86,17 @@ app.post("/signup", async (req, res) => {
     const bcrypt = require("bcrypt");
     const password_hash = await bcrypt.hash(password, 10);
     const user = await User.create({ first_name, last_name, email, password_hash });
+    await req.session.save(); // Ensure session is saved before redirect
     req.session.user = { id: user.id, first_name: user.first_name, email: user.email };
     res.redirect("/");
   } catch (error) {
     console.error("Signup error:", error);
-    req.flash("error", "Error creating user.");
+    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+      const messages = error.errors.map(e => e.message);
+      req.flash('error', messages);
+    } else {
+      req.flash("error", "Error creating user.");
+    }
     return res.render("signup", {
       csrfToken: req.csrfToken(),
       messages: req.flash(),

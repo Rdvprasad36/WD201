@@ -53,10 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const todoItem = e.target.closest('.Todo-Item');
       const todoId = todoItem.getAttribute('data-id');
 
-      if (!confirm('Are you sure you want to delete this todo?')) {
-        return;
-      }
-
+      // Removed confirmation prompt to delete immediately
       try {
         const csrfToken = document.querySelector('input[name="_csrf"]').value;
         const response = await fetch('/todos/' + todoId, {

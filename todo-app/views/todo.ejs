@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Todo-list</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script defer src="/js/todo.js"></script>
+</head>
+<body>
+  <%- include("header.ejs") %>
+
+  <h1>My Todo-list</h1>
+  <form id="add-todo-form" method="POST" action="/todos">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <input type="text" id="new-todo-title" name="title" placeholder="What's next?" required />
+    <input type="date" id="new-todo-duedate" name="dueDate" required />
+    <button type="submit">Add</button>
+  </form>
+
+  <% 
+    const today = new Date().toISOString().slice(0,10);
+    const overdue = allTodos.filter(todo => !todo.completed && todo.dueDate < today);
+    const dueToday = allTodos.filter(todo => !todo.completed && todo.dueDate === today);
+    const dueLater = allTodos.filter(todo => !todo.completed && todo.dueDate > today);
+    const completed = allTodos.filter(todo => todo.completed);
+  %>
+
+  <table>
+    <thead>
+      <tr><th colspan="3">Overdue <span id="count-overdue">(<%= overdue.length %>)</span></th></tr>
+    </thead>
+    <tbody>
+      <% overdue.forEach(todo => { %>
+        <tr class="Todo-Item" data-id="<%= todo.id %>">
+          <td>
+            <label for="todo-<%= todo.id %>">
+              <input id="todo-<%= todo.id %>" type="checkbox" class="complete-checkbox" <%= todo.completed ? "checked" : "" %> />
+              <span><%= todo.title %></span>
+            </label>
+          </td>
+          <td><%= todo.dueDate %></td>
+          <td><button class="delete-btn" title="Delete">&#128465;</button></td>
+        </tr>
+      <% }) %>
+    </tbody>
+
+    <thead>
+      <tr><th colspan="3">Due Today <span id="count-due-today">(<%= dueToday.length %>)</span></th></tr>
+    </thead>
+    <tbody>
+      <% dueToday.forEach(todo => { %>
+        <tr class="Todo-Item" data-id="<%= todo.id %>">
+          <td>
+            <label for="todo-<%= todo.id %>">
+              <input id="todo-<%= todo.id %>" type="checkbox" class="complete-checkbox" <%= todo.completed ? "checked" : "" %> />
+              <span><%= todo.title %></span>
+            </label>
+          </td>
+          <td><%= todo.dueDate %></td>
+          <td><button class="delete-btn" title="Delete">&#128465;</button></td>
+        </tr>
+      <% }) %>
+    </tbody>
+
+    <thead>
+      <tr><th colspan="3">Due Later <span id="count-due-later">(<%= dueLater.length %>)</span></th></tr>
+    </thead>
+    <tbody>
+      <% dueLater.forEach(todo => { %>
+        <tr class="Todo-Item" data-id="<%= todo.id %>">
+          <td>
+            <label for="todo-<%= todo.id %>">
+              <input id="todo-<%= todo.id %>" type="checkbox" class="complete-checkbox" <%= todo.completed ? "checked" : "" %> />
+              <span><%= todo.title %></span>
+            </label>
+          </td>
+          <td><%= todo.dueDate %></td>
+          <td><button class="delete-btn" title="Delete">&#128465;</button></td>
+        </tr>
+      <% }) %>
+    </tbody>
+
+    <thead>
+      <tr><th colspan="3">Completed Items <span id="count-completed">(<%= completed.length %>)</span></th></tr>
+    </thead>
+    <tbody>
+      <% completed.forEach(todo => { %>
+        <tr class="Todo-Item" data-id="<%= todo.id %>">
+          <td>
+            <label for="todo-<%= todo.id %>">
+              <input id="todo-<%= todo.id %>" type="checkbox" class="complete-checkbox" <%= todo.completed ? "checked" : "" %> />
+              <span><%= todo.title %></span>
+            </label>
+          </td>
+          <td><%= todo.dueDate %></td>
+          <td><button class="delete-btn" title="Delete">&#128465;</button></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <%- include("footer.ejs") %>
+</body>
+</html>

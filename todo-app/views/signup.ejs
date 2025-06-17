@@ -10,7 +10,17 @@
 
   <h1>Sign Up</h1>
   <% if (messages && messages.error) { %>
-    <div class="flash-error"><%= messages.error %></div>
+    <div class="flash-error">
+      <% if (Array.isArray(messages.error)) { %>
+        <ul>
+          <% messages.error.forEach(function(msg) { %>
+            <li><%= msg %></li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <%= messages.error %>
+      <% } %>
+    </div>
   <% } %>
   <form method="POST" action="/signup">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">

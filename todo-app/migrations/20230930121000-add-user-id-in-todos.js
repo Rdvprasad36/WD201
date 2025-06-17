@@ -1,30 +1,27 @@
 'use strict';
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    // Add userId column as nullable first
+  up: async (queryInterface) => {
     await queryInterface.addColumn('Todos', 'userId', {
-      type: Sequelize.INTEGER,
+      type: queryInterface.sequelize.Sequelize.INTEGER,
       allowNull: true,
       references: {
         model: 'Users',
-        key: 'id'
+        key: 'id',
       },
       onUpdate: 'CASCADE',
-      onDelete: 'CASCADE'
+      onDelete: 'SET NULL',
     });
-    // Set userId to a default value (e.g., 1) for existing rows if needed
-    // await queryInterface.sequelize.query('UPDATE Todos SET userId = 1 WHERE userId IS NULL');
-    // Alter column to set allowNull false
+    // Alter column to NOT NULL after adding
     await queryInterface.changeColumn('Todos', 'userId', {
-      type: Sequelize.INTEGER,
+      type: queryInterface.sequelize.Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'Users',
-        key: 'id'
+        key: 'id',
       },
       onUpdate: 'CASCADE',
-      onDelete: 'CASCADE'
+      onDelete: 'SET NULL',
     });
   },
 
